@@ -1,0 +1,25 @@
+version: "3.8"
+
+
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "root"
+    command: --log-bin-trust-function-creators=1
+    cap_add:
+      - SYS_NICE
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    expose:
+      - "${DB_PORT}"
+    volumes:
+      - local-db:/var/lib/mysql
+      - ./db/seed/:/docker-entrypoint-initdb.d/
+
+volumes:
+  local-db:
