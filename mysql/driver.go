@@ -1,14 +1,14 @@
 package mysql
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
-var Database *sql.DB
+var Database *sqlx.DB
 
 func Init() {
 	dataSource := fmt.Sprintf(
@@ -20,7 +20,7 @@ func Init() {
 		os.Getenv("DB_NAME"),
 	)
 
-	db, err := sql.Open("mysql", dataSource)
+	db, err := sqlx.Connect("mysql", dataSource)
 
 	if err != nil {
 		panic(err.Error())
