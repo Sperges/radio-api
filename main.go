@@ -2,8 +2,8 @@ package main
 
 import (
 	"os"
-	"radio-api/controllers"
 	"radio-api/mysql"
+	"radio-api/routes"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,7 +20,7 @@ func main() {
 	r := gin.Default()
 	r.SetTrustedProxies([]string{host})
 
-	controllers.SetupRoutes(r)
+	routes.SetupRoutes(r)
 
 	r.Run(host + ":" + port)
 }
