@@ -9,6 +9,7 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	r.POST("/user", controllers.CreateUser)
 	r.GET("/user/:id", controllers.ReadUser)
+	r.GET("/users", controllers.ReadUsers)
 	r.PUT("/user/:id", controllers.UpdateUser)
 	r.DELETE("/user/:id", controllers.DeleteUser)
 

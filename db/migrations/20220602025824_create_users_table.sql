@@ -1,8 +1,8 @@
 -- migrate:up
 CREATE TABLE Users (
-    ID int NOT NULL AUTO_INCREMENT,
-    UserName varchar(255) NOT NULL,
-    PRIMARY KEY (ID)
+    Id int NOT NULL AUTO_INCREMENT,
+    Username varchar(255) NOT NULL,
+    PRIMARY KEY (Id)
 );
 
 -- migrate:down
