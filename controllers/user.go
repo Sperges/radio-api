@@ -17,16 +17,20 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	if err := services.CreateUser(user); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
+	err := services.CreateUser(user)
+
+	switch err {
+	case nil:
 		c.JSON(http.StatusOK, "OK")
+	case sql.ErrNoRows:
+		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
+	default:
+		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
 	}
 }
 
 func ReadUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return
@@ -53,35 +57,39 @@ func ReadUsers(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
-	var id int
-	if err := c.ShouldBindUri(&id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-		return
-	}
-
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return
 	}
 
-	if result, err := services.UpdateUser(id, user); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, result)
+	err := services.UpdateUser(user)
+
+	switch err {
+	case nil:
+		c.JSON(http.StatusOK, "OK")
+	case sql.ErrNoRows:
+		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
+	default:
+		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
 	}
 }
 
 func DeleteUser(c *gin.Context) {
-	var id int
-	if err := c.ShouldBindUri(&id); err != nil {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return
 	}
 
-	if err := services.DeleteUser(id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, "")
+	err = services.DeleteUser(id)
+
+	switch err {
+	case nil:
+		c.JSON(http.StatusOK, "OK")
+	case sql.ErrNoRows:
+		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
+	default:
+		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
 	}
 }

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"radio-api/models"
 	"radio-api/repo"
 )
@@ -18,10 +17,13 @@ func ReadUsers() ([]models.User, error) {
 	return repo.ReadUsers()
 }
 
-func UpdateUser(id int, newUser models.User) (models.User, error) {
-	return models.User{}, errors.New("not implemented")
+func UpdateUser(user models.User) error {
+	if _, err := repo.ReadUser(user.Id); err != nil {
+		return err
+	}
+	return repo.UpdateUser(user)
 }
 
 func DeleteUser(id int) error {
-	return errors.New("not implemented")
+	return repo.DeleteUser(id)
 }
