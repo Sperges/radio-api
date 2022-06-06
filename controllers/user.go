@@ -1,95 +1,47 @@
 package controllers
 
 import (
-	"database/sql"
-	"net/http"
 	"radio-api/models"
 	"radio-api/services"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func CreateUser(c *gin.Context) {
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	if err := BindStruct(c, &user); err != nil {
 		return
 	}
-
-	err := services.CreateUser(user)
-
-	switch err {
-	case nil:
-		c.JSON(http.StatusOK, "OK")
-	case sql.ErrNoRows:
-		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
-	default:
-		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
-	}
+	result, err := services.CreateUser(user)
+	StructResponse(c, result, err)
 }
 
 func ReadUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := GetId(c)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return
 	}
-
 	result, err := services.ReadUser(id)
-
-	switch err {
-	case nil:
-		c.JSON(http.StatusOK, result)
-	case sql.ErrNoRows:
-		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
-	default:
-		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
-	}
+	StructResponse(c, result, err)
 }
 
 func ReadUsers(c *gin.Context) {
-	if result, err := services.ReadUsers(); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, result)
-	}
+	result, err := services.ReadUsers()
+	StructResponse(c, result, err)
 }
 
 func UpdateUser(c *gin.Context) {
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	if err := BindStruct(c, &user); err != nil {
 		return
 	}
-
-	err := services.UpdateUser(user)
-
-	switch err {
-	case nil:
-		c.JSON(http.StatusOK, "OK")
-	case sql.ErrNoRows:
-		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
-	default:
-		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
-	}
+	OkResponse(c, services.UpdateUser(user))
 }
 
 func DeleteUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := GetId(c)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return
 	}
-
-	err = services.DeleteUser(id)
-
-	switch err {
-	case nil:
-		c.JSON(http.StatusOK, "OK")
-	case sql.ErrNoRows:
-		_ = c.AbortWithError(http.StatusNotFound, err).SetType(gin.ErrorTypePrivate)
-	default:
-		_ = c.AbortWithError(http.StatusInternalServerError, err).SetType(gin.ErrorTypePrivate)
-	}
+	OkResponse(c, services.DeleteUser(id))
 }
