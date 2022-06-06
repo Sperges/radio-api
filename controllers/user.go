@@ -17,12 +17,12 @@ func CreateUser(c *gin.Context) {
 }
 
 func ReadUser(c *gin.Context) {
-	id, err := GetId(c)
-	if err != nil {
+	id, paramErr := GetPathParamAsInt(c, "id")
+	if paramErr != nil {
 		return
 	}
-	result, err := services.ReadUser(id)
-	StructResponse(c, result, err)
+	result, resultErr := services.ReadUser(id)
+	StructResponse(c, result, resultErr)
 }
 
 func ReadUsers(c *gin.Context) {
@@ -39,7 +39,7 @@ func UpdateUser(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context) {
-	id, err := GetId(c)
+	id, err := GetPathParamAsInt(c, "id")
 	if err != nil {
 		return
 	}

@@ -13,12 +13,8 @@ func ReadPlaylist(id int) (models.Playlist, error) {
 	return models.Playlist{}, errors.New("not implemented")
 }
 
-func ReadPlaylistByIDFromUser(user models.User, id int) (models.Playlist, error) {
-	return models.Playlist{}, errors.New("not implemented")
-}
-
-func ReadPlaylistByNameFromUser(user models.User, id int) (models.Playlist, error) {
-	return models.Playlist{}, errors.New("not implemented")
+func ReadPlaylistIdsByUserId(userId int) ([]int, error) {
+	return ReadIdsFromTableByUserId("Playlists", userId)
 }
 
 func UpdatePlaylist(id int, newPlaylist models.Playlist) (models.Playlist, error) {

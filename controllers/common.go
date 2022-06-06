@@ -16,8 +16,8 @@ func BindStruct[T any](c *gin.Context, obj T) error {
 	return nil
 }
 
-func GetId(c *gin.Context) (int, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+func GetPathParamAsInt(c *gin.Context, identifier string) (int, error) {
+	id, err := strconv.Atoi(c.Param(identifier))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
 		return 0, err

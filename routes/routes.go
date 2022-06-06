@@ -14,7 +14,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.DELETE("/users/:id", controllers.DeleteUser)
 
 	r.POST("/:user/radios", controllers.CreateRadio)
-	r.GET("/:user/radios/:id", controllers.ReadRadio)
+	// r.GET("/:user/radios/:id", controllers.ReadRadio)
 	r.GET("/:user/radios", controllers.ReadRadios)
 	r.PUT("/:user/radios", controllers.UpdateRadio)
 	r.DELETE("/:user/radios/:id", controllers.DeleteRadio)
