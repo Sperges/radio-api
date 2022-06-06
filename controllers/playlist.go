@@ -36,6 +36,10 @@ func ReadPlaylist(c *gin.Context) {
 	}
 }
 
+func ReadPlaylists(c *gin.Context) {
+
+}
+
 func ReadPlaylistByIDFromUser(c *gin.Context) {
 
 }
