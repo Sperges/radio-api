@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"net/http"
 	"radio-api/models"
 	"radio-api/services"
 
@@ -9,75 +8,105 @@ import (
 )
 
 func CreatePlaylist(c *gin.Context) {
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
+		return
+	}
 	var playlist models.Playlist
-	if err := c.ShouldBindJSON(&playlist); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	if bindErr := BindStruct(c, &playlist); bindErr != nil {
 		return
 	}
-
-	if result, err := services.CreatePlaylist(playlist); err != nil {
-		_ = c.AbortWithError(http.StatusNotImplemented, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, result)
-	}
-}
-
-func ReadPlaylist(c *gin.Context) {
-	var id int
-	if err := c.ShouldBindUri(&id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-		return
-	}
-
-	if result, err := services.ReadPlaylist(id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, result)
-	}
+	result, resultErr := services.CreatePlaylist(userId, playlist)
+	StructResponse(c, result, resultErr)
 }
 
 func ReadPlaylists(c *gin.Context) {
-
-}
-
-func ReadPlaylistByIDFromUser(c *gin.Context) {
-
-}
-
-func ReadPlaylistByNameFromUser(c *gin.Context) {
-
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
+		return
+	}
+	result, resultErr := services.ReadPlaylistsByUserId(userId)
+	StructResponse(c, result, resultErr)
 }
 
 func UpdatePlaylist(c *gin.Context) {
-	var id int
-	if err := c.ShouldBindUri(&id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
 		return
 	}
-
 	var playlist models.Playlist
-	if err := c.ShouldBindJSON(&playlist); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	if bindErr := BindStruct(c, &playlist); bindErr != nil {
 		return
 	}
-
-	if result, err := services.UpdatePlaylist(id, playlist); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, result)
-	}
+	OkResponse(c, services.UpdatePlaylist(userId, playlist))
 }
 
 func DeletePlaylist(c *gin.Context) {
-	var id int
-	if err := c.ShouldBindUri(&id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
 		return
 	}
-
-	if err := services.DeletePlaylist(id); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err).SetType(gin.ErrorTypePrivate)
-	} else {
-		c.JSON(http.StatusOK, "")
+	id, paramErr := GetPathParamAsInt(c, "id")
+	if paramErr != nil {
+		return
 	}
+	OkResponse(c, services.DeletePlaylist(userId, id))
 }
+
+func AddRadioToPlaylist(c *gin.Context) {
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
+		return
+	}
+	playlistId, paramErr := GetPathParamAsInt(c, "playlistid")
+	if paramErr != nil {
+		return
+	}
+	radioId, paramErr := GetPathParamAsInt(c, "radioid")
+	if paramErr != nil {
+		return
+	}
+	OkResponse(c, services.AddRadioToPlaylist(userId, playlistId, radioId))
+}
+
+func RemoveRadioFromPlaylist(c *gin.Context) {
+	userId, paramErr := GetPathParamAsInt(c, "userid")
+	if paramErr != nil {
+		return
+	}
+	playlistId, paramErr := GetPathParamAsInt(c, "playlistid")
+	if paramErr != nil {
+		return
+	}
+	radioId, paramErr := GetPathParamAsInt(c, "radioid")
+	if paramErr != nil {
+		return
+	}
+	OkResponse(c, services.RemoveRadioFromPlaylist(userId, playlistId, radioId))
+}
+
+// func AddRadiosToPlaylist(c *gin.Context) {
+// 	_, paramErr := GetPathParamAsInt(c, "userid")
+// 	if paramErr != nil {
+// 		return
+// 	}
+// 	playlistId, paramErr := GetPathParamAsInt(c, "playlistid")
+// 	if paramErr != nil {
+// 		return
+// 	}
+// 	radioIds := []int{}
+// 	OkResponse(c, services.RemoveRadiosFromPlaylist(playlistId, radioIds))
+// }
+
+// func RemoveRadiosFromPlaylist(c *gin.Context) {
+// 	_, paramErr := GetPathParamAsInt(c, "userid")
+// 	if paramErr != nil {
+// 		return
+// 	}
+// 	playlistId, paramErr := GetPathParamAsInt(c, "playlistid")
+// 	if paramErr != nil {
+// 		return
+// 	}
+// 	radioIds := []int{}
+// 	OkResponse(c, services.RemoveRadiosFromPlaylist(playlistId, radioIds))
+// }

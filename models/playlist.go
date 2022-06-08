@@ -1,7 +1,8 @@
 package models
 
 type Playlist struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name" binding:"required"`
-	UserId int    `json:"userId" binding:"required"`
+	Id       int    `db:"Id" json:"id"`
+	Name     string `db:"PlaylistName" json:"name" binding:"required"`
+	UserId   int    `db:"UserId" json:"userId"`
+	RadioIds []int  `json:"radioIds"`
 }

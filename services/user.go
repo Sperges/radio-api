@@ -14,24 +14,16 @@ func CreateUser(user models.User) (int, error) {
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
-	var id int
-	if err := mysql.Database.Get(&id, "SELECT LAST_INSERT_ID()"); err != nil {
-		return 0, err
-	}
-	return id, nil
+	return GetNewestId()
 }
 
 func ReadUser(id int) (models.User, error) {
-	user := models.User{}
+	var user models.User
 	err := mysql.Database.Get(&user, "SELECT * FROM Users WHERE Id=?", id)
 	if err != nil {
 		return user, err
 	}
-	radioIds, err := ReadRadioIdsByUserId(id)
-	if err != nil {
-		return user, err
-	}
-	playlistIds, err := ReadPlaylistIdsByUserId(id)
+	radioIds, playlistIds, err := populateUserIds(user.Id)
 	if err != nil {
 		return user, err
 	}
@@ -43,19 +35,27 @@ func ReadUser(id int) (models.User, error) {
 func ReadUsers() ([]models.User, error) {
 	users := []models.User{}
 	err := mysql.Database.Select(&users, "SELECT * FROM Users ORDER BY Id ASC")
+	for i := range users {
+		radioIds, playlistIds, err := populateUserIds(users[i].Id)
+		if err != nil {
+			return users, err
+		}
+		users[i].RadioIds = radioIds
+		users[i].PlaylistIds = playlistIds
+	}
 	return users, err
 }
 
 func UpdateUser(user models.User) error {
-	if _, err := ReadUser(user.Id); err != nil {
-		return err
-	}
 	tx := mysql.Database.MustBegin()
 	defer tx.Rollback()
-	tx.MustExec("UPDATE Users SET Username=? WHERE Id=?",
+	result := tx.MustExec("UPDATE Users SET Username=? WHERE Id=?",
 		user.Name,
 		user.Id,
 	)
+	if err := CheckUpdateSuccess(result); err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
@@ -64,4 +64,18 @@ func DeleteUser(id int) error {
 	defer tx.Rollback()
 	tx.MustExec("DELETE FROM Users WHERE Id=?", id)
 	return tx.Commit()
+}
+
+// Populate radio and playlist ids.
+// radioId, playlistId, error.
+func populateUserIds(userId int) (radioIds []int, playlistIds []int, err error) {
+	radioIds, err = ReadRadioIdsByUserId(userId)
+	if err != nil {
+		return []int{}, []int{}, err
+	}
+	playlistIds, err = ReadPlaylistIdsByUserId(userId)
+	if err != nil {
+		return []int{}, []int{}, err
+	}
+	return radioIds, playlistIds, nil
 }

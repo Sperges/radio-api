@@ -8,21 +8,24 @@ import (
 
 func SetupRoutes(r *gin.Engine) {
 	r.POST("/users", controllers.CreateUser)
-	r.GET("/users/:id", controllers.ReadUser)
+	r.GET("/users/:userid", controllers.ReadUser)
 	r.GET("/users", controllers.ReadUsers)
 	r.PUT("/users", controllers.UpdateUser)
-	r.DELETE("/users/:id", controllers.DeleteUser)
+	r.DELETE("/users/:userid", controllers.DeleteUser)
 
-	r.POST("/:user/radios", controllers.CreateRadio)
+	r.POST("/:userid/radios", controllers.CreateRadio)
 	// r.GET("/:user/radios/:id", controllers.ReadRadio)
-	r.GET("/:user/radios", controllers.ReadRadios)
-	r.PUT("/:user/radios", controllers.UpdateRadio)
-	r.DELETE("/:user/radios/:id", controllers.DeleteRadio)
+	r.GET("/:userid/radios", controllers.ReadRadios)
+	r.PUT("/:userid/radios", controllers.UpdateRadio)
+	r.DELETE("/:userid/radios/:radioid", controllers.DeleteRadio)
 
-	r.POST("/:user/playlists", controllers.CreatePlaylist)
-	r.GET("/:user/playlists/:id", controllers.ReadPlaylist)
-	r.GET("/:user/playlists", controllers.ReadPlaylists)
-	r.PUT("/:user/playlists", controllers.UpdatePlaylist)
-	r.DELETE("/:user/playlists/:id", controllers.DeletePlaylist)
+	r.POST("/:userid/playlists", controllers.CreatePlaylist)
+	r.POST("/:userid/playlists/:playlistid/radios/:radioid", controllers.AddRadioToPlaylist)
+	//r.POST("/users/:user/playlists/:playlistid/radios", controllers.AddRadiosToPlaylist)
+	r.GET("/:userid/playlists", controllers.ReadPlaylists)
+	r.PUT("/:userid/playlists", controllers.UpdatePlaylist)
+	r.DELETE("/:userid/playlists/:playlistid", controllers.DeletePlaylist)
+	r.DELETE("/:userid/playlists/:playlistid/radios/:radioid", controllers.RemoveRadioFromPlaylist)
+	//r.DELETE("/users/:user/playlists/:playlistid/radios", controllers.RemoveRadiosFromPlaylist)
 
 }

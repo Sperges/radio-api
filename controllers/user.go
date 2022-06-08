@@ -17,7 +17,7 @@ func CreateUser(c *gin.Context) {
 }
 
 func ReadUser(c *gin.Context) {
-	id, paramErr := GetPathParamAsInt(c, "id")
+	id, paramErr := GetPathParamAsInt(c, "userid")
 	if paramErr != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func UpdateUser(c *gin.Context) {
 }
 
 func DeleteUser(c *gin.Context) {
-	id, err := GetPathParamAsInt(c, "id")
+	id, err := GetPathParamAsInt(c, "userid")
 	if err != nil {
 		return
 	}

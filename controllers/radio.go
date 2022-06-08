@@ -8,7 +8,7 @@ import (
 )
 
 func CreateRadio(c *gin.Context) {
-	userId, paramErr := GetPathParamAsInt(c, "user")
+	userId, paramErr := GetPathParamAsInt(c, "userid")
 	if paramErr != nil {
 		return
 	}
@@ -21,7 +21,7 @@ func CreateRadio(c *gin.Context) {
 }
 
 func ReadRadios(c *gin.Context) {
-	userId, paramErr := GetPathParamAsInt(c, "user")
+	userId, paramErr := GetPathParamAsInt(c, "userid")
 	if paramErr != nil {
 		return
 	}
@@ -30,7 +30,7 @@ func ReadRadios(c *gin.Context) {
 }
 
 func UpdateRadio(c *gin.Context) {
-	_, paramErr := GetPathParamAsInt(c, "user")
+	userId, paramErr := GetPathParamAsInt(c, "userid")
 	if paramErr != nil {
 		return
 	}
@@ -38,17 +38,17 @@ func UpdateRadio(c *gin.Context) {
 	if err := BindStruct(c, &radio); err != nil {
 		return
 	}
-	OkResponse(c, services.UpdateRadio(radio))
+	OkResponse(c, services.UpdateRadio(userId, radio))
 }
 
 func DeleteRadio(c *gin.Context) {
-	_, paramErr := GetPathParamAsInt(c, "user")
+	userId, paramErr := GetPathParamAsInt(c, "userid")
 	if paramErr != nil {
 		return
 	}
-	id, paramErr := GetPathParamAsInt(c, "id")
+	id, paramErr := GetPathParamAsInt(c, "radioid")
 	if paramErr != nil {
 		return
 	}
-	OkResponse(c, services.DeleteRadio(id))
+	OkResponse(c, services.DeleteRadio(userId, id))
 }

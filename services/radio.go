@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"radio-api/models"
 	"radio-api/mysql"
 )
@@ -8,52 +9,57 @@ import (
 func CreateRadio(userId int, radio models.Radio) (int, error) {
 	tx := mysql.Database.MustBegin()
 	defer tx.Rollback()
-	tx.MustExec("INSERT INTO Radios (RadioName, UserId) VALUES (?, ?)",
-		radio.Name,
-		userId,
-	)
+	tx.MustExec("INSERT INTO Radios (RadioName, StreamUrl, UserId) VALUES (?, ?, ?)", radio.Name, radio.StreamUrl, userId)
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
-	var id int
-	if err := mysql.Database.Get(&id, "SELECT LAST_INSERT_ID()"); err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-func ReadRadio(id int) (models.Radio, error) {
-	radio := models.Radio{}
-	err := mysql.Database.Get(&radio, "SELECT * FROM Radios WHERE Id=?", id)
-	return radio, err
+	return GetNewestId()
 }
 
 func ReadRadiosByUserId(userId int) ([]models.Radio, error) {
 	radios := []models.Radio{}
 	err := mysql.Database.Select(&radios, "SELECT * FROM Radios WHERE UserId=?", userId)
+	for i := range radios {
+		playlistIds, err := ReadPlaylistIdsByRadioId(radios[i].Id)
+		if err != nil {
+			return radios, err
+		}
+		radios[i].PlaylistIds = playlistIds
+	}
 	return radios, err
 }
 
-func ReadRadioIdsByUserId(userId int) ([]int, error) {
-	return ReadIdsFromTableByUserId("Radios", userId)
+func ReadRadioIdsByPlaylistId(playlistId int) ([]int, error) {
+	ids := []int{}
+	err := mysql.Database.Select(&ids, "SELECT RadioId FROM PlaylistRadios WHERE PlaylistId=?", playlistId)
+	return ids, err
 }
 
-func UpdateRadio(radio models.Radio) error {
-	if _, err := ReadRadio(radio.Id); err != nil {
-		return err
-	}
+func ReadRadioIdsByUserId(userId int) ([]int, error) {
+	ids := []int{}
+	err := mysql.Database.Select(&ids, "SELECT Id FROM Radios WHERE UserId=?", userId)
+	return ids, err
+}
+
+func UpdateRadio(userId int, radio models.Radio) error {
+	fmt.Println(radio)
 	tx := mysql.Database.MustBegin()
 	defer tx.Rollback()
-	tx.MustExec("UPDATE Radios SET RadioName=? WHERE Id=?",
+	result := tx.MustExec("UPDATE Radios SET RadioName=?, StreamUrl=? WHERE Id=? AND UserId=?",
 		radio.Name,
+		radio.StreamUrl,
 		radio.Id,
+		userId,
 	)
+	if err := CheckUpdateSuccess(result); err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
-func DeleteRadio(id int) error {
+func DeleteRadio(userId int, id int) error {
 	tx := mysql.Database.MustBegin()
 	defer tx.Rollback()
-	tx.MustExec("DELETE FROM Radios WHERE Id=?", id)
+	tx.MustExec("DELETE FROM Radios WHERE Id=? AND UserId=?", id, userId)
 	return tx.Commit()
 }
